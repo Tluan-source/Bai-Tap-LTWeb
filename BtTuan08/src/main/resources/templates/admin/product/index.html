@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Product Management</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-gradient-to-r from-purple-100 to-teal-100 min-h-screen flex flex-col items-center">
+
+<!-- Header -->
+<div class="max-w-4xl mx-auto mt-6 bg-white shadow-md rounded-xl p-4 flex items-center gap-4 border border-gray-200">
+    <img src="/img/TriNguyen.jpg"
+         alt="Avatar"
+         class="w-20 h-20 object-cover rounded-full border-2 border-purple-500">
+    <div>
+        <h2 class="text-xl font-bold text-gray-800">Product Management</h2>
+        <p class="text-gray-600">MSSV: <span class="font-medium">23110190</span> – Chau Võ Minh Danh</p>
+    </div>
+</div>
+
+<!-- Menu -->
+<div class="max-w-4xl mx-auto mt-6 bg-white shadow-lg rounded-2xl p-4 flex gap-6 justify-center border border-gray-200">
+    <a href="#">
+        <button
+                class="px-5 py-2.5 bg-gradient-to-r from-green-500 to-teal-500 text-white font-medium rounded-xl shadow-md hover:shadow-lg hover:scale-105 transition-transform duration-200 flex items-center gap-2">
+            📦 Products
+        </button>
+    </a>
+    <a href="/admin/categories/index">
+        <button
+                class="px-5 py-2.5 bg-gradient-to-r from-green-500 to-teal-500 text-white font-medium rounded-xl shadow-md hover:shadow-lg hover:scale-105 transition-transform duration-200 flex items-center gap-2">
+            📂 Categories
+        </button>
+    </a>
+    <button data-bs-toggle="modal" data-bs-target="#productModal" onclick="openAddModal()"
+            class="px-5 py-2.5 bg-gradient-to-r from-pink-500 to-red-500 text-white font-medium rounded-xl shadow-md hover:shadow-lg hover:scale-105 transition-transform duration-200 flex items-center gap-2">
+        ➕ Add Product
+    </button>
+</div>
+
+<hr class="w-3/4 border-gray-400 my-4"/>
+
+<!-- Content -->
+<section class="w-3/4 bg-white p-8 rounded-xl shadow-lg">
+    <div class="flex justify-between items-center mb-6">
+        <h2 class="text-xl font-semibold text-gray-800">📦 Danh sách Product</h2>
+        <button data-bs-toggle="modal" data-bs-target="#productModal" onclick="openAddModal()"
+                class="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition">
+            ➕ Thêm mới
+        </button>
+    </div>
+
+    <!-- Table -->
+    <div class="overflow-x-auto">
+        <table class="w-full border border-gray-200 rounded-lg shadow-sm">
+            <thead class="bg-purple-50 text-gray-700">
+            <tr>
+                <th class="px-4 py-2 border">ID</th>
+                <th class="px-4 py-2 border">Tên</th>
+                <th class="px-4 py-2 border">Ảnh</th>
+                <th class="px-4 py-2 border">Giá</th>
+                <th class="px-4 py-2 border">Danh mục</th>
+                <th class="px-4 py-2 border text-center">Hành động</th>
+            </tr>
+            </thead>
+            <tbody id="productTableBody" class="text-gray-700"></tbody>
+        </table>
+    </div>
+
+    <!-- Pagination -->
+    <div id="pagination" class="flex justify-center items-center gap-2 mt-6"></div>
+</section>
+
+<hr class="w-3/4 border-gray-400 my-4"/>
+
+<!-- Footer -->
+<footer class="text-center py-4 text-gray-600">
+    <p>© 2025 Product Management App - Built with ❤️</p>
+</footer>
+
+<!-- Modal -->
+<div class="modal fade" id="productModal" tabindex="-1" aria-labelledby="productModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form id="productForm" enctype="multipart/form-data">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="productModalLabel">Add Product</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" id="prodId">
+                    <div class="mb-3">
+                        <label for="prodName" class="form-label">Tên</label>
+                        <input type="text" class="form-control" id="prodName" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="prodPrice" class="form-label">Giá</label>
+                        <input type="number" class="form-control" id="prodPrice" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="prodCategory" class="form-label">Danh mục</label>
+                        <select class="form-control" id="prodCategory" required></select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="prodImage" class="form-label">Ảnh</label>
+                        <input type="file" class="form-control" id="prodImage" accept="image/*">
+                        <img id="previewImg" src="" alt="" class="mt-2 rounded-lg" width="120" style="display:none;">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn bg-purple-600 text-white hover:bg-purple-700">💾 Lưu</button>
+                    <button type="button" class="btn bg-gray-500 text-white hover:bg-gray-600" data-bs-dismiss="modal">Đóng</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    let currentPage = 0;
+    let pageSize = 5;
+    let productModal;
+
+    document.addEventListener("DOMContentLoaded", () => {
+        productModal = new bootstrap.Modal(document.getElementById("productModal"));
+        loadProducts();
+    });
+
+    // Load categories
+    function loadCategories(selectedId = null) {
+        $.get('/api/categories', function(res){
+            let options = res.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
+            $("#prodCategory").html(options);
+            if (selectedId) $("#prodCategory").val(selectedId);
+        });
+    }
+
+    // Load products
+    function loadProducts(page = 0) {
+        $.get(`/api/products?page=${page}&size=${pageSize}`, function(res){
+            let rows = res.content.map(p => `
+                <tr class="hover:bg-purple-50">
+                    <td class="px-4 py-2 border">${p.id}</td>
+                    <td class="px-4 py-2 border">${p.name}</td>
+                    <td class="px-4 py-2 border">
+                        ${p.image ? `<img src="/uloads/${p.image}" width="80" class="object-cover rounded">` : ''}
+                    </td>
+                    <td class="px-4 py-2 border">${p.price}</td>
+                    <td class="px-4 py-2 border">${p.category?.name || ''}</td>
+                    <td class="px-4 py-2 border text-center space-x-2">
+                        <button class="px-3 py-1 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600 transition" onclick="openEditModal(${p.id})">✏️ Sửa</button>
+                        <button class="px-3 py-1 bg-red-600 text-white rounded-lg hover:bg-red-700 transition" onclick="deleteProduct(${p.id})">🗑️ Xóa</button>
+                    </td>
+                </tr>`).join('');
+            $("#productTableBody").html(rows);
+
+            // Pagination
+            let pag = '';
+            for(let i = 0; i < res.totalPages; i++) {
+                pag += `
+                    <button class="px-3 py-1 rounded-lg ${i === res.number ? 'bg-purple-600 text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'} transition"
+                            onclick="loadProducts(${i})">${i + 1}</button>`;
+            }
+            $("#pagination").html(pag);
+            currentPage = res.number;
+        });
+    }
+
+    function openAddModal() {
+        $("#productForm")[0].reset();
+        $("#prodId").val('');
+        $("#previewImg").hide();
+        $("#productModalLabel").text("➕ Thêm Product");
+        loadCategories();
+        productModal.show();
+    }
+
+    function openEditModal(id) {
+        $.get(`/api/products/${id}`, function(p) {
+            $("#prodId").val(p.id);
+            $("#prodName").val(p.name);
+            $("#prodPrice").val(p.price);
+            $("#previewImg").attr("src", p.image ? `/Uploads/${p.image}` : '').toggle(!!p.image);
+            $("#productModalLabel").text("✏️ Sửa Product");
+            loadCategories(p.category?.id);
+            productModal.show();
+        });
+    }
+
+    $("#prodImage").on("change", function() {
+        const file = this.files[0];
+        if(file) {
+            const reader = new FileReader();
+            reader.onload = e => $("#previewImg").attr("src", e.target.result).show();
+            reader.readAsDataURL(file);
+        }
+    });
+
+    $("#productForm").submit(function(e) {
+        e.preventDefault();
+        const formData = new FormData();
+        formData.append("name", $("#prodName").val());
+        formData.append("price", $("#prodPrice").val());
+        formData.append("categoryId", $("#prodCategory").val());
+        const file = $("#prodImage")[0].files[0];
+        if(file) formData.append("imageFile", file);
+
+        const id = $("#prodId").val();
+        let method = id ? "PUT" : "POST";
+        let url = id ? `/api/products/${id}` : '/api/products';
+
+        $.ajax({
+            url: url,
+            type: method,
+            data: formData,
+            processData: false,
+            contentType: false,
+            success: () => {
+                productModal.hide();
+                loadProducts(currentPage);
+            },
+            error: () => { alert('Có lỗi xảy ra khi lưu Product!'); }
+        });
+    });
+
+    function deleteProduct(id) {
+        if(confirm("Xóa product này?")) {
+            $.ajax({
+                url: `/api/products/${id}`,
+                type: "DELETE",
+                success: () => { loadProducts(currentPage); }
+            });
+        }
+    }
+</script>
+</body>
+</html>

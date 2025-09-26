@@ -1,0 +1,83 @@
+package vn.iostar.controller;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.ui.Model;
+import vn.iostar.entity.Category;
+import vn.iostar.service.CategoryService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.ModelMap;
+import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import org.springframework.data.domain.*;
+
+import jakarta.validation.Valid;
+import java.io.IOException;
+import java.nio.file.*;
+import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+
+@Controller
+@RequestMapping("/admin/categories")
+@RequiredArgsConstructor
+public class CategoryController {
+
+//    @Autowired
+//    private CategoryService categoryService;
+//
+//    // Hiển thị danh sách + tìm kiếm + phân trang
+//    @GetMapping
+//    public String listCategories(
+//            @RequestParam(name = "page", defaultValue = "0") int page,
+//            @RequestParam(name = "size", defaultValue = "5") int size,
+//            @RequestParam(name = "q", required = false) String keyword,
+//            Model model) {
+//
+//        Pageable pageable = PageRequest.of(page, size, Sort.by("id").descending());
+//        Page<Category> pageData = categoryService.search(keyword, pageable);
+//
+//        model.addAttribute("pageData", pageData);
+//        model.addAttribute("q", keyword);
+//
+//        return "categories/list"; // templates/categories/list.html
+//    }
+//
+//
+//    // Mở form thêm mới
+//    @GetMapping("/add")
+//    public String addForm(Model model) {
+//        model.addAttribute("category", new Category());
+//        return "categories/add-edit"; // templates/categories/add-edit.html
+//    }
+//
+//    // Lưu Category (thêm mới hoặc cập nhật)
+//    @PostMapping("/save")
+//    public String saveCategory(@ModelAttribute("category") Category category) {
+//        categoryService.save(category);
+//        return "redirect:/categories";
+//    }
+//
+//    // Mở form chỉnh sửa
+//    @GetMapping("/edit/{id}")
+//    public String editForm(@PathVariable("id") Long id, Model model) {
+//        Optional<Category> opt = categoryService.findById(id);
+//        if (opt.isPresent()) {
+//            model.addAttribute("category", opt.get());
+//            return "categories/add-edit";
+//        }
+//        return "redirect:/categories";
+//    }
+//
+//    // Xóa Category
+//    @GetMapping("/delete/{id}")
+//    public String deleteCategory(@PathVariable("id") Long id) {
+//        categoryService.deleteById(id);
+//        return "redirect:/categories";
+//    }
+
+}
