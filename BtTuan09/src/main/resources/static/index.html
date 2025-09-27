@@ -1,0 +1,193 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Bai9 – GraphQL + AJAX UI</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <style>
+    body{background:#f6f7fb}
+    .card{border:0; box-shadow:0 6px 20px rgba(0,0,0,.06)}
+    .form-section{background:#fff;border-radius:16px;padding:16px}
+    .badge-id{font-variant-numeric: tabular-nums}
+  </style>
+</head>
+<body>
+<div class="container py-4">
+  <h2 class="mb-3">Bai9 – Demo UI (Spring GraphQL)</h2>
+
+  <!-- Actions row -->
+  <div class="row g-3 mb-4">
+    <div class="col-lg-6">
+      <div class="form-section h-100">
+        <div class="d-flex align-items-center justify-content-between mb-2">
+          <h5 class="mb-0">Products (Giá ↑)</h5>
+          <div>
+            <button class="btn btn-sm btn-primary" id="btnLoad">Reload</button>
+          </div>
+        </div>
+        <div class="input-group mb-2" style="max-width: 360px;">
+          <input class="form-control" placeholder="Category ID" id="catId" />
+          <button class="btn btn-outline-secondary" id="btnByCat">Theo Category</button>
+        </div>
+        <small class="text-muted">Tip: Nhập ID category rồi bấm “Theo Category”. Bấm “Reload” để về danh sách giá ↑.</small>
+      </div>
+    </div>
+
+    <div class="col-lg-6">
+      <div class="form-section">
+        <h5 class="mb-3">Tạo nhanh (User / Category / Product)</h5>
+        <ul class="nav nav-pills mb-3" id="pills-tab" role="tablist">
+          <li class="nav-item" role="presentation">
+            <button class="nav-link active" id="pills-user-tab" data-bs-toggle="pill" data-bs-target="#pills-user" type="button" role="tab">User</button>
+          </li>
+          <li class="nav-item" role="presentation">
+            <button class="nav-link" id="pills-category-tab" data-bs-toggle="pill" data-bs-target="#pills-category" type="button" role="tab">Category</button>
+          </li>
+          <li class="nav-item" role="presentation">
+            <button class="nav-link" id="pills-product-tab" data-bs-toggle="pill" data-bs-target="#pills-product" type="button" role="tab">Product</button>
+          </li>
+        </ul>
+        <div class="tab-content" id="pills-tabContent">
+          <!-- Create User -->
+          <div class="tab-pane fade show active" id="pills-user" role="tabpanel">
+            <form id="formUser" class="row g-2">
+              <div class="col-md-6"><input class="form-control" name="fullname" placeholder="Fullname" required></div>
+              <div class="col-md-6"><input class="form-control" name="email" placeholder="Email" type="email" required></div>
+              <div class="col-md-6"><input class="form-control" name="password" placeholder="Password" type="password" required></div>
+              <div class="col-md-6"><input class="form-control" name="phone" placeholder="Phone"></div>
+              <div class="col-12"><button class="btn btn-success" type="submit">Create User</button></div>
+            </form>
+          </div>
+
+          <!-- Create Category -->
+          <div class="tab-pane fade" id="pills-category" role="tabpanel">
+            <form id="formCategory" class="row g-2">
+              <div class="col-md-6"><input class="form-control" name="name" placeholder="Name" required></div>
+              <div class="col-md-6"><input class="form-control" name="images" placeholder="Image URL"></div>
+              <div class="col-12"><button class="btn btn-success" type="submit">Create Category</button></div>
+            </form>
+          </div>
+
+          <!-- Create Product -->
+          <div class="tab-pane fade" id="pills-product" role="tabpanel">
+            <form id="formProduct" class="row g-2">
+              <div class="col-md-6"><input class="form-control" name="title" placeholder="Title" required></div>
+              <div class="col-md-3"><input class="form-control" name="quantity" placeholder="Qty" type="number" required></div>
+              <div class="col-md-3"><input class="form-control" name="price" placeholder="Price" type="number" step="0.01" required></div>
+              <div class="col-12"><input class="form-control" name="desc" placeholder="Description"></div>
+              <div class="col-md-6"><input class="form-control" name="userId" placeholder="Owner User ID" required></div>
+              <div class="col-md-6"><input class="form-control" name="categoryIds" placeholder="Category IDs (vd: 1,2,3)"></div>
+              <div class="col-12"><button class="btn btn-success" type="submit">Create Product</button></div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- List -->
+  <div class="row" id="grid"></div>
+</div>
+
+<script>
+async function gql(query, variables={}){
+  const r = await fetch('/graphql',{
+    method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({query, variables})
+  });
+  const j = await r.json();
+  if(j.errors){ throw new Error(j.errors.map(e=>e.message).join('\n')); }
+  return j.data;
+}
+
+const Q_ALL_ASC = `query { productsSortedByPriceAsc { id title price quantity user { id fullname } categories { id name } } }`;
+const Q_BY_CAT = `query($id:ID!){ productsByCategory(categoryId:$id){ id title price quantity user{ id fullname } categories{ id name } } }`;
+
+const M_CREATE_USER = `mutation($input:UserInput!){ createUser(input:$input){ id fullname email } }`;
+const M_CREATE_CATEGORY = `mutation($input:CategoryInput!){ createCategory(input:$input){ id name } }`;
+const M_CREATE_PRODUCT = `mutation($input:ProductInput!){ createProduct(input:$input){ id title price } }`;
+
+function productCard(p){
+  const cats = (p.categories||[]).map(c=>`<span class="badge text-bg-secondary me-1 badge-id">#${c.id}</span>`).join('');
+  const owner = p.user? `<span class="text-muted">by</span> <span class="fw-semibold">${p.user.fullname}</span> <span class="badge text-bg-light badge-id ms-1">UID ${p.user.id}</span>`: '';
+  return `<div class="col-md-4 mb-3">
+    <div class="card h-100">
+      <div class="card-body">
+        <div class="d-flex justify-content-between align-items-start mb-1">
+          <h5 class="card-title mb-0">${p.title??'-'}</h5>
+          <span class="badge text-bg-primary">${Number(p.price).toLocaleString()}</span>
+        </div>
+        <div class="text-muted mb-2">Qty: ${p.quantity??0}</div>
+        <div class="small mb-2">${owner}</div>
+        <div>${cats}</div>
+      </div>
+    </div>
+  </div>`;
+}
+
+async function loadAll(){
+  try{
+    const data = await gql(Q_ALL_ASC);
+    grid.innerHTML = data.productsSortedByPriceAsc.map(productCard).join('');
+  }catch(err){ alert(err.message); }
+}
+
+async function loadByCategory(id){
+  try{
+    const data = await gql(Q_BY_CAT,{id});
+    grid.innerHTML = data.productsByCategory.map(productCard).join('');
+  }catch(err){ alert(err.message); }
+}
+
+btnLoad.onclick = loadAll;
+btnByCat.onclick = ()=>{ const id = catId.value.trim(); if(id) loadByCategory(id); };
+
+// Forms
+formUser.onsubmit = async (e)=>{
+  e.preventDefault();
+  const fd = new FormData(formUser);
+  const input = Object.fromEntries(fd.entries());
+  try{
+    await gql(M_CREATE_USER,{input});
+    formUser.reset();
+    alert('Created user ✓');
+  }catch(err){ alert(err.message); }
+};
+
+formCategory.onsubmit = async (e)=>{
+  e.preventDefault();
+  const fd = new FormData(formCategory);
+  const input = Object.fromEntries(fd.entries());
+  try{
+    await gql(M_CREATE_CATEGORY,{input});
+    formCategory.reset();
+    alert('Created category ✓');
+  }catch(err){ alert(err.message); }
+};
+
+formProduct.onsubmit = async (e)=>{
+  e.preventDefault();
+  const fd = new FormData(formProduct);
+  const input = Object.fromEntries(fd.entries());
+  // Chuyển dữ liệu đúng kiểu ProductInput
+  input.quantity = Number(input.quantity);
+  input.price = Number(input.price);
+  input.categoryIds = (input.categoryIds||'')
+    .split(',')
+    .map(s=>s.trim())
+    .filter(Boolean);
+  try{
+    await gql(M_CREATE_PRODUCT,{input});
+    formProduct.reset();
+    alert('Created product ✓');
+    loadAll();
+  }catch(err){ alert(err.message); }
+};
+
+// first load
+loadAll();
+</script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
