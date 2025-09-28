@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
+<head>
+    <title>Category Management</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gradient-to-r from-purple-100 to-teal-100 min-h-screen flex flex-col items-center">
+
+<!-- Header với thông tin sinh viên -->
+<div class="max-w-4xl mx-auto mt-6 bg-white shadow-md rounded-xl p-4 flex items-center gap-4 border border-gray-200">
+    <!-- Ảnh -->
+    <img src="/image/Quan.jpg" alt="Avatar"
+         class="w-20 h-20 object-cover rounded-full border-2 border-purple-500">
+
+    <!-- Thông tin -->
+    <div>
+        <h2 class="text-xl font-bold text-gray-800">Category Management</h2>
+        <p class="text-gray-600">MSSV: <span class="font-medium">23110294</span> – Nguyễn Vũ Quân</p>
+    </div>
+</div>
+
+<!-- Thanh menu -->
+<div class="max-w-4xl mx-auto mt-6 bg-white shadow-lg rounded-2xl p-4 flex gap-6 justify-center border border-gray-200">
+    <a href="/home">
+        <button
+                class="px-5 py-2.5 bg-gradient-to-r from-purple-500 to-indigo-500 text-white font-medium rounded-xl shadow-md hover:shadow-lg hover:scale-105 transition-transform duration-200 flex items-center gap-2">
+            🏠 Home
+        </button>
+    </a>
+    <a href="/categories">
+        <button
+                class="px-5 py-2.5 bg-gradient-to-r from-green-500 to-teal-500 text-white font-medium rounded-xl shadow-md hover:shadow-lg hover:scale-105 transition-transform duration-200 flex items-center gap-2">
+            📂 Categories
+        </button>
+    </a>
+    <a href="/categories/add">
+        <button
+                class="px-5 py-2.5 bg-gradient-to-r from-pink-500 to-red-500 text-white font-medium rounded-xl shadow-md hover:shadow-lg hover:scale-105 transition-transform duration-200 flex items-center gap-2">
+            ➕ Add Category
+        </button>
+    </a>
+</div>
+
+
+<hr class="w-3/4 border-gray-400 my-4"/>
+
+<!-- Content -->
+<section layout:fragment="content" class="w-3/4 bg-white p-8 rounded-xl shadow-lg">
+
+    <!-- Tiêu đề + nút thêm -->
+    <div class="flex justify-between items-center mb-6">
+        <h2 class="text-xl font-semibold text-gray-800">📂 Danh sách Category</h2>
+        <a th:href="@{/categories/add}"
+           class="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition">
+            ➕ Thêm mới
+        </a>
+    </div>
+
+    <!-- Form tìm kiếm -->
+    <form th:action="@{/categories}" method="get" class="flex gap-3 mb-6">
+        <input type="text" name="q" th:value="${q}" placeholder="🔍 Nhập tên Category..."
+               class="flex-1 border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-400"/>
+        <button type="submit"
+                class="px-4 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition">
+            Search
+        </button>
+    </form>
+
+    <!-- Bảng dữ liệu -->
+    <div class="overflow-x-auto">
+        <table class="w-full border border-gray-200 rounded-lg shadow-sm">
+            <thead class="bg-purple-50 text-gray-700">
+            <tr>
+                <th class="px-4 py-2 border">ID</th>
+                <th class="px-4 py-2 border">Name</th>
+                <th class="px-4 py-2 border">Description</th>
+                <th class="px-4 py-2 border text-center">Actions</th>
+            </tr>
+            </thead>
+            <tbody class="text-gray-700">
+            <tr th:each="c : ${pageData.content}" class="hover:bg-purple-50">
+                <td class="px-4 py-2 border" th:text="${c.id}"></td>
+                <td class="px-4 py-2 border" th:text="${c.name}"></td>
+                <td class="px-4 py-2 border" th:text="${c.description}"></td>
+                <td class="px-4 py-2 border text-center space-x-2">
+                    <a th:href="@{/categories/edit/{id}(id=${c.id})}"
+                       class="px-3 py-1 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600 transition">
+                        ✏️ Edit
+                    </a>
+                    <a th:href="@{/categories/delete/{id}(id=${c.id})}"
+                       class="px-3 py-1 bg-red-600 text-white rounded-lg hover:bg-red-700 transition"
+                       onclick="return confirm('Bạn có chắc chắn muốn xóa?');">
+                        🗑️ Delete
+                    </a>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Phân trang -->
+    <div class="flex justify-center items-center gap-2 mt-6">
+        <a th:if="${!pageData.first}"
+           th:href="@{/categories(page=${pageData.number - 1}, q=${q})}"
+           class="px-3 py-1 bg-gray-200 rounded-lg hover:bg-gray-300">⬅ Prev</a>
+
+        <span th:each="i : ${#numbers.sequence(0, pageData.totalPages - 1)}">
+            <a th:href="@{/categories(page=${i}, q=${q})}"
+               th:text="${i + 1}"
+               th:classappend="${i == pageData.number} ? ' bg-purple-600 text-white ' : ' bg-gray-200 text-gray-700 hover:bg-gray-300 '"
+               class="px-3 py-1 rounded-lg mx-1">
+            </a>
+        </span>
+
+        <a th:if="${!pageData.last}"
+           th:href="@{/categories(page=${pageData.number + 1}, q=${q})}"
+           class="px-3 py-1 bg-gray-200 rounded-lg hover:bg-gray-300">Next ➡</a>
+    </div>
+</section>
+
+<hr class="w-3/4 border-gray-400 my-4"/>
+
+<!-- Footer -->
+<footer class="text-center py-4 text-gray-600">
+    <p>© 2025 Category Management App - Built with ❤️ & Spring Boot + Thymeleaf</p>
+</footer>
+
+</body>
+</html>
