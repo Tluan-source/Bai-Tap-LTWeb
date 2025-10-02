@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>Admin Home</title>
+  <style>
+    body {
+      font-family: 'Arial', sans-serif;
+      background: linear-gradient(135deg, #6a11cb, #2575fc);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      margin: 0;
+      color: #333;
+    }
+
+    .admin-container {
+      background: #fff;
+      padding: 40px 30px;
+      border-radius: 12px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+      width: 400px;
+      text-align: center;
+    }
+
+    h2 {
+      margin-bottom: 30px;
+      color: #333;
+    }
+
+    .admin-links {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+      margin-bottom: 20px;
+    }
+
+    .admin-links a {
+      display: block;
+      padding: 12px;
+      border-radius: 8px;
+      background-color: #2575fc;
+      color: #fff;
+      text-decoration: none;
+      font-size: 16px;
+      transition: 0.3s;
+    }
+
+    .admin-links a:hover {
+      background-color: #1a5ed6;
+    }
+
+    a.logout-btn {
+      display: inline-block;
+      margin-top: 10px;
+      padding: 12px 25px;
+      border-radius: 8px;
+      background-color: #ff4b5c;
+      color: #fff;
+      text-decoration: none;
+      font-weight: bold;
+      transition: 0.3s;
+    }
+
+    a.logout-btn:hover {
+      background-color: #e03b4e;
+    }
+  </style>
+</head>
+<body>
+  <div class="admin-container">
+    <h2>Admin Home</h2>
+    <div class="admin-links">
+      <a href="/admin/category">Quản lý Category</a>
+      <a href="/admin/product">Quản lý Product</a>
+    </div>
+    <a class="logout-btn" href="/logout">Đăng xuất</a>
+  </div>
+</body>
+</html>

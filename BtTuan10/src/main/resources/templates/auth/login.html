@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>Đăng nhập</title>
+  <style>
+    body {
+      font-family: 'Arial', sans-serif;
+      background: linear-gradient(135deg, #6a11cb, #2575fc);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+      color: #333;
+    }
+
+    .login-container {
+      background: #fff;
+      padding: 40px 30px;
+      border-radius: 12px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+      width: 350px;
+      text-align: center;
+    }
+
+    h2 {
+      margin-bottom: 25px;
+      color: #333;
+    }
+
+    input {
+      width: 100%;
+      padding: 12px 15px;
+      margin: 10px 0;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      font-size: 16px;
+      transition: 0.3s;
+      box-sizing: border-box;
+    }
+
+    input:focus {
+      border-color: #2575fc;
+      outline: none;
+      box-shadow: 0 0 5px rgba(37, 117, 252, 0.5);
+    }
+
+    button {
+      width: 100%;
+      padding: 12px;
+      margin-top: 15px;
+      border: none;
+      border-radius: 8px;
+      background-color: #2575fc;
+      color: #fff;
+      font-size: 16px;
+      cursor: pointer;
+      transition: 0.3s;
+      box-sizing: border-box;
+    }
+
+    button:hover {
+      background-color: #1a5ed6;
+    }
+
+    .message {
+      margin-top: 15px;
+      color: red;
+      font-size: 14px;
+    }
+
+    .success {
+      color: green;
+    }
+
+    p {
+      margin-top: 20px;
+      font-size: 14px;
+      color: #666;
+    }
+
+    p span {
+      font-weight: bold;
+      color: #2575fc;
+    }
+  </style>
+</head>
+<body>
+  <div class="login-container">
+    <h2>Đăng nhập</h2>
+    <form th:action="@{/login}" method="post">
+      <input name="username" placeholder="Username"/>
+      <input name="password" type="password" placeholder="Password"/>
+      <button type="submit">Login</button>
+
+      <div class="message" th:if="${param.error}">Sai tài khoản/mật khẩu</div>
+      <div class="message success" th:if="${param.logout}">Đã đăng xuất</div>
+      <div class="message" th:if="${param.forbidden}">Không đủ quyền</div>
+    </form>
+    <p>Test: <span>user/123</span> (ROLE_USER), <span>admin/123</span> (ROLE_ADMIN)</p>
+  </div>
+</body>
+</html>
