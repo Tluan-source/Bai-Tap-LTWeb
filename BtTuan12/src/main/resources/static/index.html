@@ -1,0 +1,973 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hỗ trợ khách hàng</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.3s;
+        }
+
+        body.dark-mode {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        /* Username Page */
+        #username-page {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .username-page-container {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 50px 40px;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            width: 90%;
+            max-width: 420px;
+            text-align: center;
+            animation: slideUp 0.5s ease-out;
+        }
+
+        body.dark-mode .username-page-container {
+            background: rgba(30, 30, 46, 0.95);
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .username-page-container h1 {
+            color: #667eea;
+            font-size: 28px;
+            margin-bottom: 30px;
+            font-weight: 600;
+        }
+
+        body.dark-mode .username-page-container h1 {
+            color: #a5b4fc;
+        }
+
+        .username-page-container input {
+            width: 100%;
+            padding: 15px 20px;
+            font-size: 16px;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            outline: none;
+            transition: all 0.3s;
+            margin-bottom: 20px;
+        }
+
+        body.dark-mode .username-page-container input {
+            background: #1e1e2e;
+            border-color: #3a3a52;
+            color: #fff;
+        }
+
+        .username-page-container input:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .username-page-container button {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .username-page-container button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+        }
+
+        /* Chat Page */
+        #chat-page {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .chat-wrapper {
+            display: flex;
+            gap: 20px;
+            width: 100%;
+            max-width: 1200px;
+            height: 90vh;
+            max-height: 700px;
+        }
+
+        /* User List Sidebar */
+        .user-list-container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            width: 280px;
+            padding: 20px;
+            animation: slideUp 0.5s ease-out;
+            overflow-y: auto;
+        }
+
+        body.dark-mode .user-list-container {
+            background: #1e1e2e;
+        }
+
+        .user-list-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #e5e7eb;
+        }
+
+        body.dark-mode .user-list-header {
+            border-bottom-color: #3a3a52;
+        }
+
+        .user-list-header h3 {
+            font-size: 18px;
+            color: #333;
+        }
+
+        body.dark-mode .user-list-header h3 {
+            color: #fff;
+        }
+
+        .online-count {
+            background: #10b981;
+            color: white;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .user-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px;
+            border-radius: 12px;
+            margin-bottom: 8px;
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+
+        .user-item:hover {
+            background: #f3f4f6;
+        }
+
+        body.dark-mode .user-item:hover {
+            background: #2a2a3e;
+        }
+
+        .user-item.current-user {
+            background: rgba(102, 126, 234, 0.1);
+        }
+
+        body.dark-mode .user-item.current-user {
+            background: rgba(165, 180, 252, 0.1);
+        }
+
+        .user-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            font-size: 14px;
+            flex-shrink: 0;
+        }
+
+        .user-info {
+            flex: 1;
+        }
+
+        .user-name {
+            font-weight: 600;
+            color: #333;
+            font-size: 14px;
+        }
+
+        body.dark-mode .user-name {
+            color: #fff;
+        }
+
+        .user-status {
+            font-size: 11px;
+            color: #10b981;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .status-dot {
+            width: 6px;
+            height: 6px;
+            background: #10b981;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        /* Chat Container */
+        .chat-container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            animation: slideUp 0.5s ease-out;
+        }
+
+        body.dark-mode .chat-container {
+            background: #1e1e2e;
+        }
+
+        .chat-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 25px 30px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .chat-header h2 {
+            font-size: 22px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .chat-header h2::before {
+            content: "💬";
+            font-size: 24px;
+        }
+
+        .header-controls {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .online-indicator {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .online-dot {
+            width: 10px;
+            height: 10px;
+            background: #4ade80;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                opacity: 1;
+            }
+            50% {
+                opacity: 0.5;
+            }
+        }
+
+        /* Dark Mode Toggle */
+        .dark-mode-toggle {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            width: 50px;
+            height: 28px;
+            border-radius: 14px;
+            cursor: pointer;
+            position: relative;
+            transition: all 0.3s;
+        }
+
+        .dark-mode-toggle:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .toggle-slider {
+            position: absolute;
+            top: 3px;
+            left: 3px;
+            width: 22px;
+            height: 22px;
+            background: white;
+            border-radius: 50%;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+        }
+
+        body.dark-mode .toggle-slider {
+            transform: translateX(22px);
+        }
+
+        #messageArea {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px 30px;
+            background: #f8f9fa;
+            list-style: none;
+        }
+
+        body.dark-mode #messageArea {
+            background: #16161e;
+        }
+
+        #messageArea::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        #messageArea::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+
+        body.dark-mode #messageArea::-webkit-scrollbar-track {
+            background: #1e1e2e;
+        }
+
+        #messageArea::-webkit-scrollbar-thumb {
+            background: #667eea;
+            border-radius: 4px;
+        }
+
+        #messageArea li {
+            margin-bottom: 20px;
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .event-message {
+            text-align: center;
+        }
+
+        .event-message p {
+            display: inline-block;
+            padding: 8px 16px;
+            background: rgba(102, 126, 234, 0.1);
+            color: #667eea;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        body.dark-mode .event-message p {
+            background: rgba(165, 180, 252, 0.1);
+            color: #a5b4fc;
+        }
+
+        .chat-message {
+            display: flex;
+            gap: 12px;
+            align-items: flex-start;
+        }
+
+        .chat-message i {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-style: normal;
+            font-weight: 600;
+            font-size: 16px;
+            flex-shrink: 0;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+        }
+
+        .message-content {
+            flex: 1;
+            max-width: calc(100% - 52px);
+        }
+
+        .message-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 4px;
+        }
+
+        .message-content span {
+            font-weight: 600;
+            color: #333;
+            font-size: 14px;
+        }
+
+        body.dark-mode .message-content span {
+            color: #fff;
+        }
+
+        .message-time {
+            font-size: 11px;
+            color: #999;
+            font-weight: 400;
+        }
+
+        .message-content p {
+            background: white;
+            padding: 12px 16px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            color: #333;
+            word-wrap: break-word;
+            display: inline-block;
+            max-width: 100%;
+            line-height: 1.5;
+        }
+
+        body.dark-mode .message-content p {
+            background: #2a2a3e;
+            color: #e5e7eb;
+        }
+
+        /* Typing Indicator */
+        .typing-indicator {
+            padding: 10px 30px;
+            background: #f8f9fa;
+            font-size: 13px;
+            color: #667eea;
+            font-style: italic;
+            min-height: 40px;
+            display: flex;
+            align-items: center;
+        }
+
+        body.dark-mode .typing-indicator {
+            background: #16161e;
+            color: #a5b4fc;
+        }
+
+        .typing-dots {
+            display: inline-flex;
+            gap: 4px;
+            margin-left: 5px;
+        }
+
+        .typing-dots span {
+            width: 6px;
+            height: 6px;
+            background: #667eea;
+            border-radius: 50%;
+            animation: typingBounce 1.4s infinite;
+        }
+
+        body.dark-mode .typing-dots span {
+            background: #a5b4fc;
+        }
+
+        .typing-dots span:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .typing-dots span:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+
+        @keyframes typingBounce {
+            0%, 60%, 100% {
+                transform: translateY(0);
+            }
+            30% {
+                transform: translateY(-8px);
+            }
+        }
+
+        #messageForm {
+            padding: 20px 30px;
+            background: white;
+            border-top: 1px solid #e5e7eb;
+            display: flex;
+            gap: 12px;
+        }
+
+        body.dark-mode #messageForm {
+            background: #1e1e2e;
+            border-top-color: #3a3a52;
+        }
+
+        #messageForm input {
+            flex: 1;
+            padding: 14px 20px;
+            border: 2px solid #e5e7eb;
+            border-radius: 25px;
+            font-size: 15px;
+            outline: none;
+            transition: all 0.3s;
+        }
+
+        body.dark-mode #messageForm input {
+            background: #2a2a3e;
+            border-color: #3a3a52;
+            color: #fff;
+        }
+
+        #messageForm input:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        #messageForm button {
+            padding: 14px 30px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 25px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            white-space: nowrap;
+        }
+
+        #messageForm button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        #messageForm button:active {
+            transform: translateY(0);
+        }
+
+        @media (max-width: 768px) {
+            .chat-wrapper {
+                flex-direction: column;
+                height: 100vh;
+                max-height: 100vh;
+            }
+
+            .user-list-container {
+                width: 100%;
+                max-height: 200px;
+                border-radius: 0;
+            }
+
+            .chat-container {
+                height: 100%;
+                border-radius: 0;
+            }
+
+            #chat-page {
+                padding: 0;
+            }
+
+            .chat-header h2 {
+                font-size: 18px;
+            }
+
+            .online-indicator {
+                font-size: 12px;
+            }
+
+            #messageArea {
+                padding: 15px 20px;
+            }
+
+            #messageForm {
+                padding: 15px 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="username-page">
+        <div class="username-page-container">
+            <h1>👋 Chào mừng bạn!</h1>
+            <form id="usernameForm">
+                <input type="text" id="name" placeholder="Nhập tên của bạn..." autocomplete="off" required/>
+                <button type="submit">Bắt đầu Chat</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="chat-page" class="hidden">
+        <div class="chat-wrapper">
+            <!-- User List Sidebar -->
+            <div class="user-list-container">
+                <div class="user-list-header">
+                    <h3>👥 Người dùng</h3>
+                    <span class="online-count" id="onlineCount">0</span>
+                </div>
+                <div id="userList"></div>
+            </div>
+
+            <!-- Chat Container -->
+            <div class="chat-container">
+                <div class="chat-header">
+                    <h2>Live Chat</h2>
+                    <div class="header-controls">
+                        <div class="online-indicator">
+                            <div class="online-dot"></div>
+                            <span>Đang hoạt động</span>
+                        </div>
+                        <button class="dark-mode-toggle" id="darkModeToggle" title="Toggle Dark Mode">
+                            <div class="toggle-slider">🌙</div>
+                        </button>
+                    </div>
+                </div>
+                <ul id="messageArea"></ul>
+                <div class="typing-indicator" id="typingIndicator"></div>
+                <form id="messageForm">
+                    <input type="text" id="message" placeholder="Nhập tin nhắn..." autocomplete="off"/>
+                    <button type="submit">Gửi</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.5.1/sockjs.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
+    <script>
+        'use strict';
+
+        const usernamePage = document.querySelector('#username-page');
+        const chatPage = document.querySelector('#chat-page');
+        const usernameForm = document.querySelector('#usernameForm');
+        const messageForm = document.querySelector('#messageForm');
+        const messageInput = document.querySelector('#message');
+        const messageArea = document.querySelector('#messageArea');
+        const typingIndicator = document.querySelector('#typingIndicator');
+        const userList = document.querySelector('#userList');
+        const onlineCount = document.querySelector('#onlineCount');
+        const darkModeToggle = document.querySelector('#darkModeToggle');
+
+        let stompClient = null;
+        let username = null;
+        let typingTimeout = null;
+        let isTyping = false;
+        let onlineUsers = new Set();
+        let typingUsers = new Set();
+
+        const colors = [
+            '#2196F3', '#32c787', '#00BCD4', '#ff5652',
+            '#ffc107', '#ff85af', '#FF9800', '#39bbb0'
+        ];
+
+        // Dark Mode Toggle
+        darkModeToggle.addEventListener('click', () => {
+            document.body.classList.toggle('dark-mode');
+            const slider = darkModeToggle.querySelector('.toggle-slider');
+            slider.textContent = document.body.classList.contains('dark-mode') ? '☀️' : '🌙';
+            
+            // Save preference
+            const isDark = document.body.classList.contains('dark-mode');
+            localStorage.setItem('darkMode', isDark);
+        });
+
+        // Load dark mode preference
+        if (localStorage.getItem('darkMode') === 'true') {
+            document.body.classList.add('dark-mode');
+            darkModeToggle.querySelector('.toggle-slider').textContent = '☀️';
+        }
+
+        function connect(event) {
+            username = document.querySelector('#name').value.trim();
+            if (username) {
+                usernamePage.classList.add('hidden');
+                chatPage.classList.remove('hidden');
+
+                const socket = new SockJS('/ws');
+                stompClient = Stomp.over(socket);
+                stompClient.connect({}, onConnected, onError);
+            }
+            event.preventDefault();
+        }
+
+        function onConnected() {
+            stompClient.subscribe('/topic/public', onMessageReceived);
+            stompClient.subscribe('/topic/typing', onTypingReceived);
+            stompClient.subscribe('/topic/users', onUserListReceived);
+            
+            stompClient.send("/app/chat.addUser", {}, JSON.stringify({ 
+                sender: username, 
+                type: 'JOIN' 
+            }));
+            
+            // Add current user to online users
+            onlineUsers.add(username);
+            updateUserList();
+        }
+
+        function onError(error) {
+            console.error('Không thể kết nối WebSocket. Vui lòng tải lại trang!');
+        }
+
+        function sendMessage(event) {
+            const messageContent = messageInput.value.trim();
+            if (messageContent && stompClient) {
+                const chatMessage = {
+                    sender: username,
+                    content: messageInput.value,
+                    type: 'CHAT'
+                };
+                stompClient.send("/app/chat.sendMessage", {}, JSON.stringify(chatMessage));
+                messageInput.value = '';
+                
+                // Stop typing indicator
+                if (isTyping) {
+                    isTyping = false;
+                    sendTypingStatus(false);
+                }
+            }
+            event.preventDefault();
+        }
+
+        // Typing indicator
+        messageInput.addEventListener('input', () => {
+            if (!isTyping) {
+                isTyping = true;
+                sendTypingStatus(true);
+            }
+            
+            clearTimeout(typingTimeout);
+            typingTimeout = setTimeout(() => {
+                isTyping = false;
+                sendTypingStatus(false);
+            }, 1000);
+        });
+
+        function sendTypingStatus(typing) {
+            if (stompClient && stompClient.connected) {
+                stompClient.send("/app/chat.typing", {}, JSON.stringify({
+                    sender: username,
+                    typing: typing
+                }));
+            }
+        }
+
+        function onTypingReceived(payload) {
+            const data = JSON.parse(payload.body);
+            
+            if (data.sender !== username) {
+                if (data.typing) {
+                    typingUsers.add(data.sender);
+                } else {
+                    typingUsers.delete(data.sender);
+                }
+                updateTypingIndicator();
+            }
+        }
+
+        function updateTypingIndicator() {
+            if (typingUsers.size === 0) {
+                typingIndicator.innerHTML = '';
+            } else if (typingUsers.size === 1) {
+                const user = Array.from(typingUsers)[0];
+                typingIndicator.innerHTML = `${user} đang gõ<span class="typing-dots"><span></span><span></span><span></span></span>`;
+            } else if (typingUsers.size === 2) {
+                const users = Array.from(typingUsers);
+                typingIndicator.innerHTML = `${users[0]} và ${users[1]} đang gõ<span class="typing-dots"><span></span><span></span><span></span></span>`;
+            } else {
+                typingIndicator.innerHTML = `Nhiều người đang gõ<span class="typing-dots"><span></span><span></span><span></span></span>`;
+            }
+        }
+
+        function onUserListReceived(payload) {
+            const users = JSON.parse(payload.body);
+            onlineUsers = new Set(users);
+            updateUserList();
+        }
+
+        function updateUserList() {
+            userList.innerHTML = '';
+            onlineCount.textContent = onlineUsers.size;
+            
+            onlineUsers.forEach(user => {
+                const userItem = document.createElement('div');
+                userItem.className = 'user-item';
+                if (user === username) {
+                    userItem.classList.add('current-user');
+                }
+                
+                const avatar = document.createElement('div');
+                avatar.className = 'user-avatar';
+                avatar.textContent = user[0].toUpperCase();
+                avatar.style.backgroundColor = getAvatarColor(user);
+                
+                const userInfo = document.createElement('div');
+                userInfo.className = 'user-info';
+                
+                const userName = document.createElement('div');
+                userName.className = 'user-name';
+                userName.textContent = user + (user === username ? ' (Bạn)' : '');
+                
+                const userStatus = document.createElement('div');
+                userStatus.className = 'user-status';
+                userStatus.innerHTML = '<span class="status-dot"></span> Online';
+                
+                userInfo.appendChild(userName);
+                userInfo.appendChild(userStatus);
+                userItem.appendChild(avatar);
+                userItem.appendChild(userInfo);
+                userList.appendChild(userItem);
+            });
+        }
+
+        function onMessageReceived(payload) {
+            const message = JSON.parse(payload.body);
+            const messageElement = document.createElement('li');
+
+            if (message.type === 'JOIN') {
+                messageElement.classList.add('event-message');
+                message.content = message.sender + ' đã tham gia!';
+                const textElement = document.createElement('p');
+                const messageText = document.createTextNode(message.content);
+                textElement.appendChild(messageText);
+                messageElement.appendChild(textElement);
+                
+                // Add user to online list
+                onlineUsers.add(message.sender);
+                updateUserList();
+
+            } else if (message.type === 'LEAVE') {
+                messageElement.classList.add('event-message');
+                message.content = message.sender + ' đã rời đi!';
+                const textElement = document.createElement('p');
+                const messageText = document.createTextNode(message.content);
+                textElement.appendChild(messageText);
+                messageElement.appendChild(textElement);
+                
+                // Remove user from online list and typing
+                onlineUsers.delete(message.sender);
+                typingUsers.delete(message.sender);
+                updateUserList();
+                updateTypingIndicator();
+
+            } else {
+                messageElement.classList.add('chat-message');
+
+                const avatarElement = document.createElement('i');
+                const avatarText = document.createTextNode(message.sender[0]);
+                avatarElement.appendChild(avatarText);
+                avatarElement.style['background-color'] = getAvatarColor(message.sender);
+                messageElement.appendChild(avatarElement);
+
+                const messageContentElement = document.createElement('div');
+                messageContentElement.classList.add('message-content');
+                
+                const messageHeader = document.createElement('div');
+                messageHeader.classList.add('message-header');
+                
+                const usernameElement = document.createElement('span');
+                const usernameText = document.createTextNode(message.sender);
+                usernameElement.appendChild(usernameText);
+                
+                const timeElement = document.createElement('span');
+                timeElement.classList.add('message-time');
+                timeElement.textContent = formatTime(new Date());
+                
+                messageHeader.appendChild(usernameElement);
+                messageHeader.appendChild(timeElement);
+                messageContentElement.appendChild(messageHeader);
+
+                const textElement = document.createElement('p');
+                const messageText = document.createTextNode(message.content);
+                textElement.appendChild(messageText);
+                messageContentElement.appendChild(textElement);
+                
+                messageElement.appendChild(messageContentElement);
+                
+                // Remove sender from typing users
+                typingUsers.delete(message.sender);
+                updateTypingIndicator();
+            }
+
+            messageArea.appendChild(messageElement);
+            messageArea.scrollTop = messageArea.scrollHeight;
+        }
+
+        function formatTime(date) {
+            const hours = date.getHours().toString().padStart(2, '0');
+            const minutes = date.getMinutes().toString().padStart(2, '0');
+            return `${hours}:${minutes}`;
+        }
+
+        function getAvatarColor(messageSender) {
+            let hash = 0;
+            for (let i = 0; i < messageSender.length; i++) {
+                hash = 31 * hash + messageSender.charCodeAt(i);
+            }
+            const index = Math.abs(hash % colors.length);
+            return colors[index];
+        }
+
+        usernameForm.addEventListener('submit', connect, true);
+        messageForm.addEventListener('submit', sendMessage, true);
+
+        // Handle page unload
+        window.addEventListener('beforeunload', () => {
+            if (stompClient && stompClient.connected) {
+                stompClient.send("/app/chat.removeUser", {}, JSON.stringify({
+                    sender: username,
+                    type: 'LEAVE'
+                }));
+            }
+        });
+    </script>
+</body>
+</html>
